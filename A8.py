@@ -1,3 +1,4 @@
+#A8_Scripting_in_Maya: Yejin Jeon & Chanhee Yoo
 import maya.cmds as cmds
 import random
 
