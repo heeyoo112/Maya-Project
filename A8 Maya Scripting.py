@@ -1,6 +1,17 @@
 #A8_Scripting_in_Maya: Yejin Jeon & Chanhee Yoo
+
+# Import Maya commands
 import maya.cmds as cmds
 import random
+
+
+# Function to create and assign a shader
+def assign_shader(object_name, color):
+    material = cmds.shadingNode('lambert', asShader=True)
+    cmds.setAttr(f"{material}.color", color[0], color[1], color[2], type="double3")
+    shading_group = cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=f"{material}SG")
+    cmds.connectAttr(f"{material}.outColor", f"{shading_group}.surfaceShader")
+    cmds.sets(object_name, edit=True, forceElement=shading_group)
 
 
 # Function to create a tree
@@ -8,11 +19,11 @@ def create_tree(height=5, radius=0.5):
     group = cmds.group(em=True, name="tree_group")
     trunk = cmds.polyCylinder(h=height, r=radius, sx=10, name="trunk")[0]
     cmds.move(0, height / 2, 0, trunk)
+    assign_shader(trunk, (0.55, 0.27, 0.07))  # Brown for trunk
     cmds.parent(trunk, group)
     foliage = cmds.polySphere(r=radius * 3, sx=20, name="foliage")[0]
     cmds.move(0, height + (radius * 2), 0, foliage)
-    cmds.setAttr(f"{foliage}.overrideEnabled", 1)
-    cmds.setAttr(f"{foliage}.overrideColor", 14)  # Green
+    assign_shader(foliage, (0, 1, 0))  # Green for foliage
     cmds.parent(foliage, group)
     return group
 
@@ -22,8 +33,7 @@ def create_rock(size=1.0):
     group = cmds.group(em=True, name="rock_group")
     rock = cmds.polySphere(r=size, sx=10, sy=10, name="rock")[0]
     cmds.scale(random.uniform(0.5, 1.5), random.uniform(0.5, 1.5), random.uniform(0.5, 1.5), rock)
-    cmds.setAttr(f"{rock}.overrideEnabled", 1)
-    cmds.setAttr(f"{rock}.overrideColor", 2)  # Gray
+    assign_shader(rock, (0.5, 0.5, 0.5))  # Gray for rock
     cmds.parent(rock, group)
     return group
 
@@ -35,13 +45,11 @@ def create_flower(petals=6):
         petal = cmds.polyPlane(w=0.2, h=0.5, sx=1, sy=1, name="petal")[0]
         cmds.rotate(0, i * (360 / petals), 90, petal)
         cmds.move(0, 0.25, 0.3, petal)
-        cmds.setAttr(f"{petal}.overrideEnabled", 1)
-        cmds.setAttr(f"{petal}.overrideColor", 13)  # Red
+        assign_shader(petal, (1, 0, 0))  # Red for petals
         cmds.parent(petal, group)
     stem = cmds.polyCylinder(h=0.5, r=0.05, name="stem")[0]
     cmds.move(0, 0.25, 0, stem)
-    cmds.setAttr(f"{stem}.overrideEnabled", 1)
-    cmds.setAttr(f"{stem}.overrideColor", 6)  # Yellow
+    assign_shader(stem, (0.8, 0.8, 0))  # Yellow for stem
     cmds.parent(stem, group)
     return group
 
@@ -54,8 +62,7 @@ def generate_forest_city_scene(num_trees=5, num_buildings=5, tree_height=6, rock
 
     # Create a ground plane
     ground = cmds.polyPlane(w=40, h=40, sx=1, sy=1, name="ground")[0]
-    cmds.setAttr(f"{ground}.overrideEnabled", 1)
-    cmds.setAttr(f"{ground}.overrideColor", 7)  # Light gray
+    assign_shader(ground, (0.7, 0.7, 0.7))  # Light gray for ground
     cmds.parent(ground, scene)
 
     # Add trees
@@ -80,8 +87,7 @@ def generate_forest_city_scene(num_trees=5, num_buildings=5, tree_height=6, rock
     for _ in range(num_buildings):
         building = cmds.polyCube(h=random.uniform(8, 20), w=3, d=3, name="building")[0]
         cmds.move(random.uniform(5, 15), 0, random.uniform(-15, 15), building)  # City on the other side
-        cmds.setAttr(f"{building}.overrideEnabled", 1)
-        cmds.setAttr(f"{building}.overrideColor", random.choice([6, 15]))  # Random building color
+        assign_shader(building, random.choice([(0.3, 0.3, 1), (1, 0.8, 0)]))  # Random color for buildings
         cmds.parent(building, scene)
 
 
